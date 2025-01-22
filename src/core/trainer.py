@@ -1,4 +1,5 @@
 import logging
+import wandb
 from abc import ABC, abstractmethod
 from torch import nn
 from torch.utils.data import DataLoader
@@ -7,14 +8,14 @@ from torch.optim.lr_scheduler import ExponentialLR, CosineAnnealingLR, ReduceLRO
 from src.utils.config import instanciate_module
 
 class EarlyStopping:
-    def __init__(self, patience=5, delta=0, verbose=True, param_obj: dict = {}):
+
+    def __init__(self, patience=5, delta=0, verbose=True):
         self.patience = patience
         self.delta = delta
         self.verbose = verbose
         self.counter = 0
         self.best_loss = None
         self.stop = False
-        self.param_obj = param_obj
 
     def __call__(self, val_loss: float):
         if self.best_loss is None or val_loss < self.best_loss - self.delta:
@@ -35,7 +36,7 @@ class BaseTrainer(object):
         self.model = model
         self.parameters = parameters
         self.device = device
-        self.early_stop = EarlyStopping(parameters['early_stopping_patience'])
+        self.early_stop = EarlyStopping(patience=parameters['early_stopping_patience'])
         
         # OPTIMIZER
         self.optimizer = Adam(
@@ -71,11 +72,12 @@ class BaseTrainer(object):
         for epoch in range(num_epochs):
             train_loss = self.train(train_dl)
             test_loss = self.test(test_dl)
-            
+            wandb.log({"Train/Loss_": train_loss, '_step_': epoch})
+            wandb.log({"Test/Loss_": test_loss, '_step_': epoch})
             if self.lr_scheduler is not None:
                 self.lr_scheduler.step(test_loss)
 
-            self.early_stop(self.model, epoch, test_loss)
+            self.early_stop(test_loss)
 
             logging.info(
                 f"Epoch {epoch+1} / {num_epochs} -  Train/Test Loss: {train_loss:.4f} | {test_loss:4f}")

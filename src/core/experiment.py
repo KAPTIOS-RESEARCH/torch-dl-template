@@ -1,10 +1,10 @@
-import logging
+import logging, wandb
 from abc import ABC, abstractmethod
 from uuid import uuid4
 from src.utils.config import set_seed, instanciate_module
-from src.loggers.wandb import WnBLogger
 from src.utils.device import get_available_device
-
+from src.core.trainer import BaseTrainer
+from torch import nn
 
 class AbstractExperiment(ABC):
     def __init__(self):
@@ -25,15 +25,11 @@ class AbstractExperiment(ABC):
     @abstractmethod
     def run_training(self):
         raise NotImplementedError
-    
-    @abstractmethod
-    def run_eval(self):
-        raise NotImplementedError
 
 
 class BaseExperiment(AbstractExperiment):
 
-    def __init__(self, project_name: str, config: dict):
+    def __init__(self, config: dict):
         super().__init__()
 
         experiment_id = str(uuid4())[:4]
@@ -48,12 +44,10 @@ class BaseExperiment(AbstractExperiment):
         self.dataloader = self.load_dataloader(config['dataloader'])
         self.trainer = self.load_trainer(config['trainer'])
 
-        # W&B
-        #logger = WnBLogger(project_name, experiment_name, config = config)
-        #logger.watch(self.model)
+        # LOGGER 
+        wandb.watch(self.model)
 
-
-    def load_model(self, model_config):
+    def load_model(self, model_config) -> nn.Module:
         md_name = model_config['module_name']
         cls_name = model_config['class_name']
         params = model_config['parameters']
@@ -67,7 +61,7 @@ class BaseExperiment(AbstractExperiment):
         params = dataloader_config['parameters']
         return instanciate_module(md_name, cls_name, params)
     
-    def load_trainer(self, trainer_config):
+    def load_trainer(self, trainer_config) -> BaseTrainer:
         md_name = trainer_config['module_name']
         cls_name = trainer_config['class_name']
         params = trainer_config['parameters']
@@ -84,8 +78,4 @@ class BaseExperiment(AbstractExperiment):
     def run_training(self):
         train_dl = self.dataloader.train()
         val_dl = self.dataloader.val()
-        self.trainer.train(train_dl)
-
-    def run_eval(self):
-        test_dl = self.dataloader.test()
-        pass
+        self.trainer.fit(train_dl, val_dl)

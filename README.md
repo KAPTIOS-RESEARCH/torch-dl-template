@@ -51,9 +51,9 @@ You can run the default experiment with :
 python main.py --config_path ./experiments/mnist/config.yaml
 ```
 
-### 2.1 Create a custom experiment
+### Create a custom experiment
 
-You can define your own experiments by simply adding following the structure of the default experiment folder (mnist).
+You can define your own experiments by simply following the structure of the default experiment folder (cifar10).
 Alternatively, if the synforge CLI is installed you can use it to create the necessary files for you :
 
 ```bash
@@ -62,6 +62,7 @@ synforge generate experiment new_experiment
 
 ## TODO
 
+- [ ] Add metrics tracking with WandB
 - [ ] Add hyperparameter tuning (Optuna, RayTune ...)
 - [ ] Add more default architectures (ResNet, UNet ...)
 - [ ] Add fine-tuning utilities

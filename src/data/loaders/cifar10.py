@@ -1,19 +1,20 @@
 import torchvision as tv
 import torchvision.transforms as transforms
 from torch.utils.data import DataLoader
+from . import AbstractDataloader
 
-
-class CIFAR10Loader(object):
+class CIFAR10Loader(AbstractDataloader):
     def __init__(self, data_dir: str = './data', input_size: tuple = (28, 28), batch_size: int = 8, num_workers: int = 2):
+        super(CIFAR10Loader, self).__init__()
         self.data_dir = data_dir
         self.input_size = input_size
         self.batch_size = batch_size
         self.num_workers = num_workers 
 
         self.transform_no_aug = transforms.Compose([
+            transforms.ToTensor(),
             transforms.Resize(self.input_size),
             transforms.Normalize((0.1307,), (0.3081,)),
-            transforms.ToTensor()
         ])
 
     def train(self):
