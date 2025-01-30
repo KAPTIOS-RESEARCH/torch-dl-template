@@ -1,6 +1,4 @@
-import logging
-import wandb
-from abc import ABC, abstractmethod
+import wandb, torch, os, logging
 from torch import nn
 from torch.utils.data import DataLoader
 from torch.optim import Adam
@@ -17,10 +15,15 @@ class EarlyStopping:
         self.best_loss = None
         self.stop = False
 
-    def __call__(self, val_loss: float):
+    def __call__(self, model: nn.Module, val_loss: float, log_dir: str):
         if self.best_loss is None or val_loss < self.best_loss - self.delta:
             self.best_loss = val_loss
             self.counter = 0
+            checkpoint = {
+                'net': model.state_dict(),
+                'min_test_loss': self.best_loss,
+            }
+            torch.save(checkpoint, os.path.join(log_dir, 'best_model.pth'))
         else:
             self.counter += 1
             if self.verbose:
@@ -67,7 +70,7 @@ class BaseTrainer(object):
     def test(self, dl: DataLoader):
         raise NotImplementedError
     
-    def fit(self, train_dl, test_dl):
+    def fit(self, train_dl, test_dl, log_dir: str):
         num_epochs = self.parameters['num_epochs']
         for epoch in range(num_epochs):
             train_loss = self.train(train_dl)
@@ -77,7 +80,7 @@ class BaseTrainer(object):
             if self.lr_scheduler is not None:
                 self.lr_scheduler.step(test_loss)
 
-            self.early_stop(test_loss)
+            self.early_stop(self.model, test_loss, log_dir)
 
             logging.info(
                 f"Epoch {epoch+1} / {num_epochs} -  Train/Test Loss: {train_loss:.4f} | {test_loss:4f}")

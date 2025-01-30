@@ -41,9 +41,9 @@ class BaseExperiment(AbstractExperiment):
         now = datetime.now()
         date_time = now.strftime("%Y_%m_%d_%H_%M_%S_%f")
 
-        log_dir = os.path.join('./logs', experiment_name)
-        os.makedirs(log_dir, exist_ok=True)
-        wandb.init(project="{{cookiecutter.project_name}}", name=experiment_name, config=config, id=date_time, dir=log_dir)
+        self.log_dir = os.path.join('./logs', experiment_name)
+        os.makedirs(self.log_dir, exist_ok=True)
+        wandb.init(project="{{cookiecutter.project_name}}", name=experiment_name, config=config, id=date_time, dir=self.log_dir)
         set_seed(config['seed'])
 
         logging.info('Initialization of the experiment - {}'.format(experiment_name))
@@ -88,4 +88,4 @@ class BaseExperiment(AbstractExperiment):
     def run_training(self):
         train_dl = self.dataloader.train()
         val_dl = self.dataloader.val()
-        self.trainer.fit(train_dl, val_dl)
+        self.trainer.fit(train_dl, val_dl, self.log_dir)

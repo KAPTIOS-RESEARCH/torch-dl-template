@@ -3,3 +3,4 @@ wandb
 .idea
 __pycache__
 /data/
+/logs

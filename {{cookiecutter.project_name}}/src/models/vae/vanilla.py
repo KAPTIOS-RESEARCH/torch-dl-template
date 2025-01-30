@@ -137,5 +137,4 @@ class VanillaVAE(BaseVAE):
         :param x: (Tensor) [B x C x H x W]
         :return: (Tensor) [B x C x H x W]
         """
-
         return self.forward(x)[0]

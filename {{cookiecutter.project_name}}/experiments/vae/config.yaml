@@ -14,7 +14,7 @@ dataloader:
   parameters:
     data_dir: ./data
     input_size: !!python/tuple [64, 64]
-    batch_size: 8
+    batch_size: 32
     num_workers: 4
 
 trainer:
@@ -30,6 +30,7 @@ trainer:
       module_name: src.optimisation.losses
       class_name: VAELoss
       parameters:
+        kld_weight: 0.0005
 
 experiment:
   class_name: BaseExperiment

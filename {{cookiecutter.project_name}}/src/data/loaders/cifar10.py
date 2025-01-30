@@ -12,9 +12,8 @@ class CIFAR10Loader(AbstractDataloader):
         self.num_workers = num_workers 
 
         self.transform_no_aug = transforms.Compose([
-            transforms.ToTensor(),
             transforms.Resize(self.input_size),
-            transforms.Normalize((0.1307,), (0.3081,)),
+            transforms.ToTensor(),
         ])
 
     def train(self):

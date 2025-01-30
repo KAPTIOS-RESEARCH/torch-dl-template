@@ -1,8 +1,10 @@
-import torch                    
 from torch import nn
 from tqdm import tqdm
 from src.core.trainer import BaseTrainer
 from src.optimisation.losses import VAELoss
+import wandb
+from torchvision.utils import make_grid
+from torchvision import transforms
 
 class VAETrainer(BaseTrainer):
 
@@ -35,14 +37,17 @@ class VAETrainer(BaseTrainer):
         test_loss = 0.0
 
         with tqdm(test_loader, leave=False, desc="Running testing phase") as pbar:
-            for data, _ in test_loader:
+            for idx, (data, _) in enumerate(test_loader):
                 data = data.to(self.device)
-                self.optimizer.zero_grad()
-                recon_x, mu, logvar = self.model(data)
-                loss = self.criterion(recon_x, data, mu, logvar)
-                loss.backward()
-                self.optimizer.step()
+                recon_x, x, mu, logvar = self.model(data)
+                loss = self.criterion(recon_x, x, mu, logvar)
                 test_loss += loss.item()
+                if idx == 0:
+                    generated_images = self.model.generate(data)
+                    generated_images = generated_images.detach().cpu().clamp(0, 1)
+                    grid = make_grid(generated_images, nrow=4)
+                    grid_image = transforms.ToPILImage()(grid)
+                    wandb.log({"generated_image_grid": wandb.Image(grid_image)})
                 pbar.update(1)
 
         test_loss /= len(test_loader)
