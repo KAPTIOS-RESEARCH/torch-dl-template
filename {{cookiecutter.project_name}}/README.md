@@ -62,6 +62,8 @@ synforge generate experiment new_experiment
 
 ## TODO
 
+- [ ] Save model
+- [ ] Change wandb output log dir
 - [ ] Add metrics tracking with WandB
 - [ ] Add hyperparameter tuning (Optuna, RayTune ...)
 - [ ] Add more default architectures (ResNet, UNet ...)

@@ -1,10 +1,11 @@
-import logging, wandb
+import logging, wandb, os
 from abc import ABC, abstractmethod
 from uuid import uuid4
 from src.utils.config import set_seed, instanciate_module
 from src.utils.device import get_available_device
 from src.core.trainer import BaseTrainer
 from torch import nn
+from datetime import datetime
 
 class AbstractExperiment(ABC):
     def __init__(self):
@@ -34,6 +35,15 @@ class BaseExperiment(AbstractExperiment):
 
         experiment_id = str(uuid4())[:4]
         experiment_name = f"{config['name']}_{experiment_id}"
+
+         # LOGGER INIT
+
+        now = datetime.now()
+        date_time = now.strftime("%Y_%m_%d_%H_%M_%S_%f")
+
+        log_dir = os.path.join('./logs', experiment_name)
+        os.makedirs(log_dir, exist_ok=True)
+        wandb.init(project="{{cookiecutter.project_name}}", name=experiment_name, config=config, id=date_time, dir=log_dir)
         set_seed(config['seed'])
 
         logging.info('Initialization of the experiment - {}'.format(experiment_name))

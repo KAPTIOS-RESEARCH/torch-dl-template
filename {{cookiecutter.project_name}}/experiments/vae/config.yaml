@@ -1,24 +1,25 @@
-name: CIFAR10
+name: VAE_MTECH
 seed: 1234
 model:
-  class_name: MNISTNet
-  module_name: src.models.mnist
+  class_name: VanillaVAE
+  module_name: src.models.vae.vanilla
   parameters:
     in_channels: 3
-    out_channels: 10
+    latent_dim: 100
+    hidden_dims: !!python/list [32, 64, 128, 256, 512]
 
 dataloader:
   class_name: CIFAR10Loader
   module_name: src.data.loaders.cifar10
   parameters:
     data_dir: ./data
-    input_size: !!python/tuple [28, 28]
+    input_size: !!python/tuple [64, 64]
     batch_size: 8
     num_workers: 4
 
 trainer:
-  class_name: CIFAR10Trainer
-  module_name: experiments.cifar10.trainer
+  class_name: VAETrainer
+  module_name: experiments.vae.trainer
   parameters:
     num_epochs: 5
     early_stopping_patience: 20
@@ -26,8 +27,8 @@ trainer:
     lr: 0.0001
     weight_decay: 0.00001
     loss:
-      module_name: torch.nn
-      class_name: CrossEntropyLoss
+      module_name: src.optimisation.losses
+      class_name: VAELoss
       parameters:
 
 experiment:
