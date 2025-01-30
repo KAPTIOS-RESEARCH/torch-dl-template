@@ -27,7 +27,7 @@ pip install -r requirements.txt
 Or
 
 ```bash
-conda env create -f env.yaml
+conda env create -f environment_osx.yaml
 conda activate {{cookiecutter.project_name}}
 ```
 
