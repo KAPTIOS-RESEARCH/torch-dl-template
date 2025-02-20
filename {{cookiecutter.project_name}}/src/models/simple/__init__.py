@@ -2,9 +2,9 @@ import torch.nn.functional as F
 from torch import nn, flatten
 
 
-class MNISTNet(nn.Module):
+class SimpleConvNet(nn.Module):
     def __init__(self, in_channels, out_channels):
-        super(MNISTNet, self).__init__()
+        super(SimpleConvNet, self).__init__()
         self.conv1 = nn.Conv2d(in_channels, 32, 3, 1)
         self.conv2 = nn.Conv2d(32, 64, 3, 1)
         self.dropout1 = nn.Dropout(0.25)

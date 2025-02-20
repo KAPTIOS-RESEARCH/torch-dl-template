@@ -43,21 +43,21 @@ wandb login
 The CLI will ask for the API key that can be found in your wandb account page.
 
 
-## Running experiments
+## Running tasks
 
 You can run the default experiment with :
 
 ```bash
-python main.py --config_path ./experiments/mnist/config.yaml
+python main.py --config_path ./tasks/mnist/config.yaml
 ```
 
-### Create a custom experiment
+### Create a custom task
 
-You can define your own experiments by simply following the structure of the default experiment folder (cifar10).
+You can define your own tasks by simply following the structure of the default experiment folder (cifar10).
 Alternatively, if the synforge CLI is installed you can use it to create the necessary files for you :
 
 ```bash
-synforge generate experiment new_experiment
+synforge generate task
 ```
 
 ## TODO

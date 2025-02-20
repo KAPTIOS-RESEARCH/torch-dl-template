@@ -23,7 +23,7 @@ if __name__ == "__main__":
     experiment_md = config['experiment']['module_name']
     experiment: AbstractExperiment = instanciate_module(
         experiment_md, 
-        experiment_cls, 
+        experiment_cls,
         {"config": config}
     )
 
