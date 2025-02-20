@@ -87,6 +87,6 @@ class BaseTrainer(object):
 
             if self.early_stop.stop:
                 logging.info(
-                    f"Val loss did not improve for {self.early_stopping.patience} epochs.")
+                    f"Val loss did not improve for {self.early_stop.patience} epochs.")
                 logging.info('Training stopped by early stopping mecanism.')
                 break
