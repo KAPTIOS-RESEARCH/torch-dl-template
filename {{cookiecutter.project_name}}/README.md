@@ -68,4 +68,4 @@ synforge generate experiment new_experiment
 - [ ] Add hyperparameter tuning (Optuna, RayTune ...)
 - [ ] Add more default architectures (ResNet, UNet ...)
 - [ ] Add fine-tuning utilities
-- [ ] Add tensorboard support to replace W&B
+- [ ] Add Evaluator class (to perform testing and visualization for inference)
