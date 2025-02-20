@@ -43,7 +43,7 @@ class BaseExperiment(AbstractExperiment):
 
         self.log_dir = os.path.join('./logs', experiment_name)
         os.makedirs(self.log_dir, exist_ok=True)
-        wandb.init(project="{{cookiecutter.project_name}}", name=experiment_name, config=config, id=date_time, dir=self.log_dir)
+       
         set_seed(config['seed'])
 
         logging.info('Initialization of the experiment - {}'.format(experiment_name))
@@ -55,7 +55,9 @@ class BaseExperiment(AbstractExperiment):
         self.trainer = self.load_trainer(config['trainer'])
 
         # LOGGER 
-        wandb.watch(self.model)
+        if self.config['track']:
+            wandb.init(project="{{cookiecutter.project_name}}", name=experiment_name, config=config, id=date_time, dir=self.log_dir)
+            wandb.watch(self.model)
 
     def load_model(self, model_config) -> nn.Module:
         md_name = model_config['module_name']
@@ -81,7 +83,7 @@ class BaseExperiment(AbstractExperiment):
             {
                 "device": self.device, 
                 "model": self.model, 
-                "parameters": params
+                "parameters": params,
             }
         ) 
 

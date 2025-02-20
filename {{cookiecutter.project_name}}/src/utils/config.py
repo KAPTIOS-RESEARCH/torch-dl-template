@@ -9,7 +9,7 @@ def validate_config_file(params: dict):
     """
     file_keys = list(params.keys())
     base_message = "validate_config_file (AssertionError)]: "
-    param_groups = ["model", "trainer", "dataloader"]
+    param_groups = ["model", "trainer", "dataloader", "track", "name", "seed"]
 
     if type(params) is not dict:
         raise AssertionError(base_message + "params should be a dictionary")

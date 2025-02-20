@@ -4,35 +4,8 @@ from torch.utils.data import DataLoader
 from torch.optim import Adam
 from torch.optim.lr_scheduler import ExponentialLR, CosineAnnealingLR, ReduceLROnPlateau
 from src.utils.config import instanciate_module
+from src.optimisation.early_stopping import EarlyStopping
 
-class EarlyStopping:
-
-    def __init__(self, patience=5, delta=0, verbose=True):
-        self.patience = patience
-        self.delta = delta
-        self.verbose = verbose
-        self.counter = 0
-        self.best_loss = None
-        self.stop = False
-
-    def __call__(self, model: nn.Module, val_loss: float, log_dir: str):
-        if self.best_loss is None or val_loss < self.best_loss - self.delta:
-            self.best_loss = val_loss
-            self.counter = 0
-            checkpoint = {
-                'net': model.state_dict(),
-                'min_test_loss': self.best_loss,
-            }
-            torch.save(checkpoint, os.path.join(log_dir, 'best_model.pth'))
-        else:
-            self.counter += 1
-            if self.verbose:
-                logging.info(
-                    f"EarlyStopping counter: {self.counter} out of {self.patience}")
-            if self.counter >= self.patience:
-                self.stop = True
-
-            
 class BaseTrainer(object):
 
     def __init__(self, model: nn.Module, parameters: dict, device: str):
@@ -75,8 +48,11 @@ class BaseTrainer(object):
         for epoch in range(num_epochs):
             train_loss = self.train(train_dl)
             test_loss = self.test(test_dl)
-            wandb.log({"Train/Loss_": train_loss, '_step_': epoch})
-            wandb.log({"Test/Loss_": test_loss, '_step_': epoch})
+            
+            if self.parameters['track']:
+                wandb.log({"Train/Loss_": train_loss, '_step_': epoch})
+                wandb.log({"Test/Loss_": test_loss, '_step_': epoch})
+            
             if self.lr_scheduler is not None:
                 self.lr_scheduler.step(test_loss)
 
@@ -90,3 +66,6 @@ class BaseTrainer(object):
                     f"Val loss did not improve for {self.early_stop.patience} epochs.")
                 logging.info('Training stopped by early stopping mecanism.')
                 break
+            
+        if self.parameters['track']:
+            wandb.finish()

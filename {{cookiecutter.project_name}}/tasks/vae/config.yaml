@@ -1,5 +1,6 @@
 name: VAE_MTECH
 seed: 1234
+track: &track True
 model:
   class_name: VanillaVAE
   module_name: src.models.vae.vanilla
@@ -26,6 +27,7 @@ trainer:
     lr_scheduler: plateau
     lr: 0.0001
     weight_decay: 0.00001
+    track: *track
     loss:
       module_name: src.optimisation.losses
       class_name: VAELoss
