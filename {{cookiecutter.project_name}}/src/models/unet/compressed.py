@@ -3,9 +3,9 @@ from torch import nn
 from src.net_utils.layers import *
 from torch.nn import functional as F
 
-class UNet(nn.Module):
+class CompressedUNET(nn.Module):
     def __init__(self, in_channels=1, out_channels=1, features=[64, 128, 256, 512]):
-        super(UNet, self).__init__()
+        super(CompressedUNET, self).__init__()
         self.encoder = nn.ModuleList()
         self.decoder = nn.ModuleList()
 
