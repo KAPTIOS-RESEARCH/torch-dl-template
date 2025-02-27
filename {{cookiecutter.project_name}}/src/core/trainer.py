@@ -37,6 +37,12 @@ class BaseTrainer(object):
                                    parameters['loss']['class_name'], 
                                    parameters['loss']['parameters'])
 
+
+        # VAL METRIC
+        self.metric = instanciate_module(parameters['metric']['module_name'],
+                                   parameters['metric']['class_name'], 
+                                   parameters['metric']['parameters'])
+        
     def train(self, dl: DataLoader):
         raise NotImplementedError
     
@@ -47,19 +53,21 @@ class BaseTrainer(object):
         num_epochs = self.parameters['num_epochs']
         for epoch in range(num_epochs):
             train_loss = self.train(train_dl)
-            test_loss = self.test(test_dl)
+            test_loss, all_preds, all_targets = self.test(test_dl)
+            metric_value = self.metric(all_preds, all_targets)
             
             if self.parameters['track']:
-                wandb.log({"Train/Loss_": train_loss, '_step_': epoch})
-                wandb.log({"Test/Loss_": test_loss, '_step_': epoch})
-            
+                wandb.log({f"Train/{self.parameters['loss']['class_name']}": train_loss, '_step_': epoch})
+                wandb.log({f"Test/{self.parameters['loss']['class_name']}": test_loss, '_step_': epoch})
+                wandb.log({f"Test/{self.parameters['metric']['class_name']}": metric_value, '_step_': epoch})
+                
             if self.lr_scheduler is not None:
                 self.lr_scheduler.step(test_loss)
 
-            self.early_stop(self.model, test_loss, log_dir)
+            self.early_stop(self.model, test_loss, log_dir, epoch)
 
             logging.info(
-                f"Epoch {epoch+1} / {num_epochs} -  Train/Test Loss: {train_loss:.4f} | {test_loss:4f}")
+                f"Epoch {epoch+1} / {num_epochs} -  Train/Test {self.parameters['loss']['class_name']}: {train_loss:.4f} | {test_loss:4f}; {self.parameters['metric']['class_name']} : {metric_value:4f}")
 
             if self.early_stop.stop:
                 logging.info(

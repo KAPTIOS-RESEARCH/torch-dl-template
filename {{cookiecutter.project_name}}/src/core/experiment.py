@@ -33,6 +33,7 @@ class BaseExperiment(AbstractExperiment):
     def __init__(self, config: dict):
         super().__init__()
 
+        self.config = config
         experiment_id = str(uuid4())[:4]
         experiment_name = f"{config['name']}_{experiment_id}"
 
@@ -56,7 +57,7 @@ class BaseExperiment(AbstractExperiment):
 
         # LOGGER 
         if self.config['track']:
-            wandb.init(project="{{cookiecutter.project_name}}", name=experiment_name, config=config, id=date_time, dir=self.log_dir)
+            wandb.init(project="CompressedUNET", name=experiment_name, config=config, id=date_time, dir=self.log_dir)
             wandb.watch(self.model)
 
     def load_model(self, model_config) -> nn.Module:

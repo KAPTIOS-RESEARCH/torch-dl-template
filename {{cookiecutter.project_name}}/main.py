@@ -5,7 +5,7 @@ from src.core.experiment import AbstractExperiment
 
 if __name__ == "__main__":
 
-    project_name = "{{cookiecutter.project_name}}"
+    project_name = "CompressedUNET"
 
     logging.basicConfig(
         level=logging.INFO,

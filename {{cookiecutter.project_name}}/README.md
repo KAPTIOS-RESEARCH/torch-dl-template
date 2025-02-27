@@ -1,11 +1,11 @@
-# {{cookiecutter.project_name}}
+# CompressedUNET
 
 ![PyTorch](https://img.shields.io/badge/PyTorch-%23EE4C2C.svg?style=flat&logo=pytorch&color=gray)  
 ![Test Coverage](https://img.shields.io/codecov/c/github/yourusername/pytorch-framework?logo=codecov)
 
 A simple template for building and training deep learning models using PyTorch. This project provides a flexible and easy-to-use set of tools for rapid model development, training pipelines, and evaluation.
 
-**Corresponding Author :** {{ cookiecutter.author_name }} <br />
+**Corresponding Author :** Brad Niepceron <br />
 
 ## Overview
 
@@ -27,8 +27,8 @@ pip install -r requirements.txt
 Or
 
 ```bash
-conda env create -f environment_osx.yaml
-conda activate {{cookiecutter.project_name}}
+conda env create -f environment.yaml
+conda activate torch-env
 ```
 
 ## Experiment tracking
@@ -59,11 +59,3 @@ Alternatively, if the synforge CLI is installed you can use it to create the nec
 ```bash
 synforge generate task
 ```
-
-## TODO
-
-- [ ] Add metrics tracking with WandB
-- [ ] Add hyperparameter tuning (Optuna, RayTune ...)
-- [ ] Add more default architectures (ResNet, UNet ...)
-- [ ] Add fine-tuning utilities
-- [ ] Add Evaluator class (to perform testing and visualization for inference)

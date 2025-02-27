@@ -10,11 +10,16 @@ class EarlyStopping:
         self.best_loss = None
         self.stop = False
 
-    def __call__(self, model: torch.nn.Module, val_loss: float, log_dir: str):
+    def __call__(self, model: torch.nn.Module, val_loss: float, log_dir: str, epoch: int):
         if self.best_loss is None or val_loss < self.best_loss - self.delta:
             self.best_loss = val_loss
             self.counter = 0
-            torch.save(model.state_dict(), os.path.join(log_dir, 'best_model.pth'))
+            model_object = {
+                'weights': model.state_dict(),
+                'min_loss': self.best_loss,
+                'last_epoch': epoch
+            }
+            torch.save(model_object, os.path.join(log_dir, 'best_model.pth'))
         else:
             self.counter += 1
             if self.verbose:

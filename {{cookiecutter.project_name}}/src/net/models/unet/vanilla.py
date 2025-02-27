@@ -1,26 +1,26 @@
 import torch
 from torch import nn
-from src.net_utils.layers import *
 from torch.nn import functional as F
+from src.net.utils.layers.conv import *
 
-class CompressedUNET(nn.Module):
-    def __init__(self, in_channels=1, out_channels=1, features=[64, 128, 256, 512]):
-        super(CompressedUNET, self).__init__()
+class VanillaUNet(nn.Module):
+    def __init__(self, in_channels=1, out_channels=1, features=[64, 128, 256, 512], drop_prob: float = 0.0):
+        super(VanillaUNet, self).__init__()
         self.encoder = nn.ModuleList()
         self.decoder = nn.ModuleList()
 
         # Encoder
         for feature in features:
-            self.encoder.append(DoubleDSConv(in_channels, feature))
+            self.encoder.append(DoubleConvBlock(in_channels, feature, drop_prob=drop_prob))
             in_channels = feature
 
         # Bottleneck
-        self.bottleneck = DoubleDSConv(features[-1], features[-1] * 2)
+        self.bottleneck = DoubleConvBlock(features[-1], features[-1] * 2, drop_prob=drop_prob)
 
         # Decoder
         for feature in reversed(features):
-            self.decoder.append(UpsampleDSConv(feature * 2, feature))
-            self.decoder.append(DepthwiseSeparableConv(feature * 2, feature))
+            self.decoder.append(TransposeConvBlock(feature * 2, feature))
+            self.decoder.append(DoubleConvBlock(feature * 2, feature, drop_prob=drop_prob))
 
         # Final layer
         self.final_conv = nn.Conv2d(features[0], out_channels, kernel_size=1)
