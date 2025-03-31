@@ -1,11 +1,11 @@
-# CompressedUNET
+# {{cookiecutter.project_name}}
 
 ![PyTorch](https://img.shields.io/badge/PyTorch-%23EE4C2C.svg?style=flat&logo=pytorch&color=gray)  
 ![Test Coverage](https://img.shields.io/codecov/c/github/yourusername/pytorch-framework?logo=codecov)
 
 A simple template for building and training deep learning models using PyTorch. This project provides a flexible and easy-to-use set of tools for rapid model development, training pipelines, and evaluation.
 
-**Corresponding Author :** Brad Niepceron <br />
+**Corresponding Author :** {{cookiecutter.author_name}} <br />
 
 ## Overview
 
@@ -18,16 +18,10 @@ It supports the following:
 
 ## Installation
 
-First, the dependencies should be installed using pip or the provided conda environment : 
+First, the dependencies should be installed the provided conda environment depending on your OS : 
 
 ```bash
-pip install -r requirements.txt
-```
-
-Or
-
-```bash
-conda env create -f environment.yaml
+conda env create -f environment.yml
 conda activate torch-env
 ```
 
@@ -43,17 +37,46 @@ wandb login
 The CLI will ask for the API key that can be found in your wandb account page.
 
 
-## Running tasks
+## Running a training task
 
-You can run the default experiment with :
+You can run an task by pointing to its configuration file like :
 
 ```bash
-python main.py --config_path ./tasks/mnist/config.yaml
+python main.py --config_path ./tasks/SR/config.yaml
 ```
+
+
+## Export a saved model
+
+The framework supports exporting a saved PyTorch model to ONNX.
+To do so, an export config yaml file should be given as flag to the ```export.py``` script.
+
+```bash
+python export.py --export_config_path ./tasks/SR/export.yaml
+```
+
+This file should look like : 
+
+```yaml
+export_path: './exports'
+model_path: './saved_models/best_model.pth'
+quantization_dataset:
+  module_name: src.data.sets.super_resolution
+  class_name: FastMRISuperResolutionDataReader
+  parameters:
+    data_folder: /path/to/dataset
+    num_samples: 100
+model:
+  class_name: SRResUNet
+  module_name: src.models.super_resolution
+  parameters:
+```
+
+By default, the export also saves a quantized version of the model. For this to work, a Calibration Dataset should be passed using the ```quantization_dataset``` key.
 
 ### Create a custom task
 
-You can define your own tasks by simply following the structure of the default experiment folder (cifar10).
+You can define your own tasks by simply following the structure of the default task folder.
 Alternatively, if the synforge CLI is installed you can use it to create the necessary files for you :
 
 ```bash

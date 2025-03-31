@@ -42,6 +42,45 @@ def validate_config_file(params: dict):
     return params
 
 
+
+def validate_export_config_file(params: dict):
+    """Validate the export config .yaml file
+    Args:
+        params (dict): Load yaml parameter file
+    """
+    file_keys = list(params.keys())
+    base_message = "validate_config_file (AssertionError)]: "
+    param_groups = ["model", "quantization_dataset"]
+    param_keys = ["export_path", "model_path"]
+
+    if type(params) is not dict:
+        raise AssertionError(base_message + "params should be a dictionary")
+
+    for mdx, p_group in enumerate(param_groups):
+        if mdx > 2:
+            if p_group not in file_keys:
+                params[p_group] = None
+            continue
+        if p_group not in file_keys:
+            raise AssertionError(
+                base_message + 'Parameter file should contain keyword "' + p_group + '"!')
+
+        required_keywords = ['class_name', 'module_name', 'parameters']
+        for i in required_keywords:
+            if i not in params[p_group].keys():
+                raise AssertionError(
+                    base_message
+                    + f'{p_group} in parameter file should contain keyword "'
+                    + p_group
+                    + f'": {i}!'
+                )
+    
+    for key in param_keys:
+        assert key in file_keys, \
+            base_message + f'Config file should contain {key}'
+    
+    return params
+
 def load_config_file(path: str):
     """Load a yaml config file
 
@@ -60,6 +99,26 @@ def load_config_file(path: str):
         logging.error(e)
         exit()
     return parameters
+
+def load_export_config_file(path: str):
+    """Load a yaml config file
+
+    Args:
+        path (str): Path to the yaml file.
+
+    Returns:
+        dict: The loaded parameter dictionary
+    """
+    try:
+        stream_file = open(path, "r")
+        parameters = yaml.load(stream_file, Loader=yaml.FullLoader)
+        validate_export_config_file(parameters)
+        logging.info("Success: Loaded export config file at: {}".format(path))
+    except AssertionError as e:
+        logging.error(e)
+        exit()
+    return parameters
+
 
 def set_seed(seed):
     """Set the seed for experiment reproduction

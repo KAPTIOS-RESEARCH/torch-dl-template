@@ -6,6 +6,7 @@ from src.utils.device import get_available_device
 from src.core.trainer import BaseTrainer
 from torch import nn
 from datetime import datetime
+from src.utils.summary import print_model_size
 
 class AbstractExperiment(ABC):
     def __init__(self):
@@ -49,7 +50,7 @@ class BaseExperiment(AbstractExperiment):
 
         logging.info('Initialization of the experiment - {}'.format(experiment_name))
         self.device = get_available_device()
-
+        logging.info(f'Experiments running on device : {self.device}')
         # CORE INIT
         self.model = self.load_model(config['model'])
         self.dataloader = self.load_dataloader(config['dataloader'])
@@ -57,7 +58,7 @@ class BaseExperiment(AbstractExperiment):
 
         # LOGGER 
         if self.config['track']:
-            wandb.init(project="CompressedUNET", name=experiment_name, config=config, id=date_time, dir=self.log_dir)
+            wandb.init(project="SpikingFastMRI", name=experiment_name, config=config, id=date_time, dir=self.log_dir)
             wandb.watch(self.model)
 
     def load_model(self, model_config) -> nn.Module:
@@ -66,6 +67,7 @@ class BaseExperiment(AbstractExperiment):
         params = model_config['parameters']
         model = instanciate_module(md_name, cls_name, params)
         model.to(self.device)
+        print_model_size(model)
         return model
     
     def load_dataloader(self, dataloader_config):
