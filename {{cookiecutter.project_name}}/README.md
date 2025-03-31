@@ -1,7 +1,6 @@
 # {{cookiecutter.project_name}}
 
 ![PyTorch](https://img.shields.io/badge/PyTorch-%23EE4C2C.svg?style=flat&logo=pytorch&color=gray)  
-![Test Coverage](https://img.shields.io/codecov/c/github/yourusername/pytorch-framework?logo=codecov)
 
 A simple template for building and training deep learning models using PyTorch. This project provides a flexible and easy-to-use set of tools for rapid model development, training pipelines, and evaluation.
 

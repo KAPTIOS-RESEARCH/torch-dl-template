@@ -34,7 +34,7 @@ dependencies:
     - torchvision==0.21.0
     - tqdm==4.67.1
     - wandb==0.19.7
-    - onnx==1.17.0
+    - onnx==1.16.1
     - onnxscript==0.2.2
-    - onnxruntime==1.10.1
+    - onnxruntime==1.19.2
     - onnx2torch==1.5.15
