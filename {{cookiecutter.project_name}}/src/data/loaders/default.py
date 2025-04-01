@@ -1,27 +1,28 @@
 from torch.utils.data import Subset, DataLoader
-from torchvision.transforms import ToTensor
+from torchvision.transforms import ToTensor, Normalize, Compose
 from torchvision.datasets import MNIST
 
 class DefaultDataloader(object):
     def __init__(self, 
-                 train_data_dir: str, 
-                 val_data_dir: str,
+                 data_dir: str, 
                  batch_size: int = 4, 
                  num_workers: int = 4,
                  debug: bool = True):
         
         super(DefaultDataloader, self).__init__()
-        self.train_data_dir = train_data_dir
-        self.val_data_dir = val_data_dir
+        self.data_dir = data_dir
         self.debug = debug
         self.batch_size = batch_size
         self.num_workers = num_workers 
         
-        self.transform = ToTensor()
+        self.transform = Compose([
+            ToTensor(),
+            Normalize((0.1307,), (0.3081,))
+        ])
 
     def train(self):
         train_dataset = MNIST(
-            root=self.train_data_dir,
+            root=self.data_dir,
             train=True,
             transform=self.transform,
             download=True
@@ -39,7 +40,7 @@ class DefaultDataloader(object):
 
     def val(self):
         val_dataset = MNIST(
-            root=self.train_data_dir,
+            root=self.data_dir,
             train=False,
             transform=self.transform,
             download=True
@@ -51,7 +52,7 @@ class DefaultDataloader(object):
         dataloader = DataLoader(val_dataset,
                                 batch_size=self.batch_size,
                                 num_workers=self.num_workers,
-                                shuffle=True,
+                                shuffle=False,
                                 pin_memory=True)
         return dataloader
 

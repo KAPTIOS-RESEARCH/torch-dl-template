@@ -10,11 +10,10 @@ model:
   parameters:
 
 dataloader:
-  class_name: DefaultLoader
+  class_name: DefaultDataloader
   module_name: src.data.loaders.default
   parameters:
-    train_data_dir: ./train_data_dir
-    val_data_dir: ./val_data_dir
+    data_dir: ./data
     batch_size: 2
     num_workers: 4
     debug: True
@@ -33,6 +32,7 @@ trainer:
       class_name: NLLLoss
       module_name: torch.nn
       parameters:
+        reduction: sum
 
 experiment:
   class_name: BaseExperiment

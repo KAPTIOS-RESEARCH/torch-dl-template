@@ -1,16 +1,14 @@
-import torch, wandb
-import torchvision.utils as vutils
+import torch
 from torch import nn
 from tqdm import tqdm
 from src.core.trainer import BaseTrainer
-import torch.nn.functional as F
 
 class DefaultTrainer(BaseTrainer):
 
     def __init__(self, model: nn.Module, parameters: dict, device: str):
         super(DefaultTrainer, self).__init__(model, parameters, device)
         if not self.criterion:
-            self.criterion = nn.L1Loss()
+            self.criterion = nn.NLLLoss(reduction='sum')
 
     def train(self, train_loader):
         self.model.train()
@@ -37,7 +35,7 @@ class DefaultTrainer(BaseTrainer):
         all_targets = []
         with torch.no_grad():
             with tqdm(val_loader, leave=False, desc="Running testing phase") as pbar:
-                for data, targets in enumerate(val_loader):
+                for data, targets in val_loader:
                     data, targets = data.to(self.device), targets.to(self.device)
                     outputs = self.model(data)
                     loss = self.criterion(outputs, targets)
