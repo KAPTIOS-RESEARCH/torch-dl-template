@@ -48,16 +48,12 @@ class BaseTrainer(object):
         num_epochs = self.parameters['num_epochs']
         for epoch in range(num_epochs):
             train_loss = self.train(train_dl)
-            test_loss, all_preds, all_targets = self.test(test_dl)
-
-            max_pixel, min_pixel = all_targets.max(), all_targets.min()
-            test_psnr = psnr(all_preds, all_targets, data_range=max_pixel - min_pixel)
+            test_loss, _, _ = self.test(test_dl)
             
             if self.parameters['track']:
                 wandb.log({
                     f"Train/{self.parameters['loss']['class_name']}": train_loss,
                     f"Test/{self.parameters['loss']['class_name']}": test_loss,
-                    f"Test/PSNR": test_psnr,
                     "_step_": epoch
                 })
                 
@@ -66,7 +62,7 @@ class BaseTrainer(object):
 
             self.early_stop(self.model, test_loss, log_dir, epoch)
 
-            logging.info(f"Epoch {epoch + 1} / {num_epochs} - Train/Test {self.parameters['loss']['class_name']}: {train_loss:.4f} | {test_loss:.4f}; PSNR: {test_psnr:.4f}")
+            logging.info(f"Epoch {epoch + 1} / {num_epochs} - Train/Test {self.parameters['loss']['class_name']}: {train_loss:.4f} | {test_loss:.4f}")
 
             if self.early_stop.stop:
                 logging.info(

@@ -1,40 +1,30 @@
-import pathlib
-from torch.utils.data import DataLoader, Subset
-from . import AbstractDataloader
-from src.data.sets.super_resolution import FastMRISuperResolutionDataset
+from torch.utils.data import Subset, DataLoader
+from torchvision.transforms import ToTensor
+from torchvision.datasets import MNIST
 
-class SRKneeMRILoader(AbstractDataloader):
+class DefaultDataloader(object):
     def __init__(self, 
                  train_data_dir: str, 
-                 val_data_dir: str, 
-                 lr_image_scale: int = 2, 
-                 low_pass_radius: float = 30.,
-                 target_snr: float = 20.,
+                 val_data_dir: str,
                  batch_size: int = 4, 
                  num_workers: int = 4,
                  debug: bool = True):
         
-        super(SRKneeMRILoader, self).__init__()
+        super(DefaultDataloader, self).__init__()
         self.train_data_dir = train_data_dir
         self.val_data_dir = val_data_dir
         self.debug = debug
-        
-        self.lr_image_scale = lr_image_scale
-        self.low_pass_radius = low_pass_radius
-        self.target_snr = target_snr
-        
         self.batch_size = batch_size
         self.num_workers = num_workers 
-
-        self.challenge = "singlecoil"
+        
+        self.transform = ToTensor()
 
     def train(self):
-        train_dataset = FastMRISuperResolutionDataset(
-            root=pathlib.Path(self.train_data_dir),
-            challenge=self.challenge,
-            lr_image_scale=self.lr_image_scale,
-            low_pass_radius=self.low_pass_radius,
-            target_snr=self.target_snr
+        train_dataset = MNIST(
+            root=self.train_data_dir,
+            train=True,
+            transform=self.transform,
+            download=True
         )
         
         if self.debug:
@@ -44,17 +34,15 @@ class SRKneeMRILoader(AbstractDataloader):
                                 batch_size=self.batch_size,
                                 num_workers=self.num_workers,
                                 shuffle=True,
-                                drop_last=True,
                                 pin_memory=True)
         return dataloader
 
     def val(self):
-        val_dataset = FastMRISuperResolutionDataset(
-            root=pathlib.Path(self.val_data_dir),
-            challenge=self.challenge,
-            lr_image_scale=self.lr_image_scale,
-            low_pass_radius=self.low_pass_radius,
-            target_snr=self.target_snr
+        val_dataset = MNIST(
+            root=self.train_data_dir,
+            train=False,
+            transform=self.transform,
+            download=True
         )
         
         if self.debug:
@@ -64,7 +52,6 @@ class SRKneeMRILoader(AbstractDataloader):
                                 batch_size=self.batch_size,
                                 num_workers=self.num_workers,
                                 shuffle=True,
-                                drop_last=True,
                                 pin_memory=True)
         return dataloader
 
