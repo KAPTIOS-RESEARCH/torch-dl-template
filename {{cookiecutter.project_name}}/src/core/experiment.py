@@ -58,7 +58,7 @@ class BaseExperiment(AbstractExperiment):
 
         # LOGGER 
         if self.config['track']:
-            wandb.init(project="SpikingFastMRI", name=experiment_name, config=config, id=date_time, dir=self.log_dir)
+            wandb.init(project="{{cookiecutter.project_name}}", name=experiment_name, config=config, id=date_time, dir=self.log_dir)
             wandb.watch(self.model)
 
     def load_model(self, model_config) -> nn.Module:
