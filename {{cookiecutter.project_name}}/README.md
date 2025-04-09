@@ -41,7 +41,7 @@ The CLI will ask for the API key that can be found in your wandb account page.
 You can run an task by pointing to its configuration file like :
 
 ```bash
-python main.py --config_path ./tasks/SR/config.yaml
+python main.py --config_path ./tasks/default/train.yaml
 ```
 
 
@@ -51,7 +51,7 @@ The framework supports exporting a saved PyTorch model to ONNX.
 To do so, an export config yaml file should be given as flag to the ```export.py``` script.
 
 ```bash
-python export.py --export_config_path ./tasks/SR/export.yaml
+python export.py --export_config_path ./tasks/default/export.yaml
 ```
 
 This file should look like : 
