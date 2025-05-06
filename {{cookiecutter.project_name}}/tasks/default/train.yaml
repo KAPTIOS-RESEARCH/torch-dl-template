@@ -23,7 +23,7 @@ trainer:
   module_name: tasks.default.trainer
   parameters:
     num_epochs: 10
-    early_stopping_patience: 5
+    early_stopping_patience: null
     lr_scheduler: plateau
     lr: 0.001
     weight_decay: 0.00001

@@ -13,7 +13,8 @@ class BaseTrainer(object):
         self.model = model
         self.parameters = parameters
         self.device = device
-        self.early_stop = EarlyStopping(patience=parameters['early_stopping_patience'], enable_wandb=parameters['track'])
+        self.early_stop = EarlyStopping(
+            patience=parameters['early_stopping_patience'], enable_wandb=parameters['track']) if parameters['early_stopping_patience'] else None
         
         # OPTIMIZER
         self.optimizer = Adam(
@@ -26,10 +27,8 @@ class BaseTrainer(object):
         self.lr_scheduler = None
         lr_scheduler_type = parameters['lr_scheduler'] if 'lr_scheduler' in parameters.keys() else 'none'
 
-        if lr_scheduler_type == 'cosine':
-            self.lr_scheduler = CosineAnnealingLR(optimizer=self.optimizer, T_max=100)
-        elif lr_scheduler_type == 'plateau':
-            self.lr_scheduler = ReduceLROnPlateau(optimizer=self.optimizer, mode='min', factor=0.1)
+        if lr_scheduler_type == 'plateau':
+            self.lr_scheduler = ReduceLROnPlateau(optimizer=self.optimizer, mode='min', factor=0.1, patience = 3)
         elif lr_scheduler_type == 'exponential':
             self.lr_scheduler = ExponentialLR(optimizer=self.optimizer, gamma=0.97)
 
@@ -64,11 +63,14 @@ class BaseTrainer(object):
 
             logging.info(f"Epoch {epoch + 1} / {num_epochs} - Train/Test {self.parameters['loss']['class_name']}: {train_loss:.4f} | {test_loss:.4f}")
 
-            if self.early_stop.stop:
-                logging.info(
-                    f"Val loss did not improve for {self.early_stop.patience} epochs.")
-                logging.info('Training stopped by early stopping mecanism.')
-                break
+            if self.early_stop is not None:
+                self.early_stop(self.model, test_loss, log_dir, epoch)
+                if self.early_stop.stop:
+                    logging.info(
+                        f"Val loss did not improve for {self.early_stop.patience} epochs.")
+                    logging.info(
+                        'Training stopped by early stopping mechanism.')
+                    break
             
         if self.parameters['track']:
             wandb.finish()
