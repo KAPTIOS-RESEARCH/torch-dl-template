@@ -16,7 +16,6 @@ class DefaultCNN(nn.Module):
             nn.ReLU(),
             nn.Dropout(0.5),
             nn.Linear(128, out_channels),
-            nn.LogSoftmax(dim = 1)
         )
 
     def forward(self, x):
