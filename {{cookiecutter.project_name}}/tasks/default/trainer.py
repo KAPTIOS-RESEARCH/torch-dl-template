@@ -13,9 +13,11 @@ class DefaultTrainer(BaseTrainer):
     def train(self, train_loader):
         self.model.train()
         train_loss = 0.0
-        
+        all_preds = []
+        all_targets = []
         with tqdm(train_loader, leave=False, desc="Running training phase") as pbar:
-            for data, targets in train_loader:
+            for sample in train_loader:
+                data, targets = sample
                 data, targets = data.to(self.device), targets.to(self.device)
                 self.optimizer.zero_grad()
                 outputs = self.model(data)
@@ -23,10 +25,16 @@ class DefaultTrainer(BaseTrainer):
                 loss.backward()
                 self.optimizer.step()
                 train_loss += loss.item()
+                all_preds.append(outputs.cpu())
+                all_targets.append(targets.cpu())
                 pbar.update(1)
 
+        all_targets = torch.cat(all_targets)
+        all_preds = torch.cat(all_preds)
+        
+        train_metrics = self.get_metrics(all_preds, all_targets)
         train_loss /= len(train_loader)
-        return train_loss
+        return train_loss, train_metrics
 
     def test(self, val_loader):
         self.model.eval()
@@ -35,16 +43,18 @@ class DefaultTrainer(BaseTrainer):
         all_targets = []
         with torch.no_grad():
             with tqdm(val_loader, leave=False, desc="Running testing phase") as pbar:
-                for data, targets in val_loader:
+                for idx, sample in enumerate(val_loader):
+                    data, targets = sample
                     data, targets = data.to(self.device), targets.to(self.device)
                     outputs = self.model(data)
                     loss = self.criterion(outputs, targets)
                     test_loss += loss.item()
-                    all_preds.append(outputs)
+                    all_preds.append(outputs.cpu())
                     all_targets.append(targets.cpu())
                     pbar.update(1)
 
         all_targets = torch.cat(all_targets)
         all_preds = torch.cat(all_preds)
+        test_metrics = self.get_metrics(all_preds, all_targets)
         test_loss /= len(val_loader)
-        return test_loss, all_preds, all_targets
+        return test_loss, test_metrics
