@@ -1,6 +1,10 @@
-import torch, random, importlib
+import torch
+import random
+import importlib
 import numpy as np
-import yaml, logging
+import yaml
+import logging
+
 
 def validate_config_file(params: dict):
     """Validate the config .yaml file
@@ -32,15 +36,14 @@ def validate_config_file(params: dict):
                     + p_group
                     + f'": {i}!'
                 )
-            
+
     assert 'seed' in file_keys, \
         base_message + 'Config file should contain seed'
 
     assert 'name' in file_keys, \
         base_message + 'Config file should contain name'
-    
-    return params
 
+    return params
 
 
 def validate_export_config_file(params: dict):
@@ -50,7 +53,7 @@ def validate_export_config_file(params: dict):
     """
     file_keys = list(params.keys())
     base_message = "validate_config_file (AssertionError)]: "
-    param_groups = ["model", "quantization_dataset"]
+    param_groups = ["model", "dataset"]
     param_keys = ["export_path", "model_path"]
 
     if type(params) is not dict:
@@ -74,12 +77,13 @@ def validate_export_config_file(params: dict):
                     + p_group
                     + f'": {i}!'
                 )
-    
+
     for key in param_keys:
         assert key in file_keys, \
             base_message + f'Config file should contain {key}'
-    
+
     return params
+
 
 def load_config_file(path: str):
     """Load a yaml config file
@@ -99,6 +103,7 @@ def load_config_file(path: str):
         logging.error(e)
         exit()
     return parameters
+
 
 def load_export_config_file(path: str):
     """Load a yaml config file

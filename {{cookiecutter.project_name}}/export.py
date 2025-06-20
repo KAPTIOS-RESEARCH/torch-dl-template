@@ -9,8 +9,7 @@ from src.utils.quantization import quantize_onnx_model
 from src.utils.export import save_to_onnx
 from src.utils.config import load_export_config_file, instanciate_module
 import warnings
-from onnxruntime.quantization import CalibrationDataReader
-
+from src.utils.calibration import QuantizationDataReader
 warnings.simplefilter(action='ignore', category=FutureWarning)
 
 if __name__ == "__main__":
@@ -27,7 +26,8 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     export_config = load_export_config_file(args.export_config_path)
-    export_path = os.path.join(export_config['export_path'], 'model.onnx')
+    export_path = os.path.join(
+        export_config['export_path'], '{}.onnx'.format(export_config['export_name']))
 
     model_md = export_config['model']['module_name']
     model_cls = export_config['model']['class_name']
@@ -42,12 +42,13 @@ if __name__ == "__main__":
         export_config['model_path'], weights_only=True, map_location=torch.device('cpu'))['weights'])
     model.to('cpu')
 
-    quantization_dataset: CalibrationDataReader = instanciate_module(
-        export_config['quantization_dataset']['module_name'],
-        export_config['quantization_dataset']['class_name'],
-        export_config['quantization_dataset']['parameters']
+    dataset = instanciate_module(
+        export_config['dataset']['module_name'],
+        export_config['dataset']['class_name'],
+        export_config['dataset']['parameters']
     )
 
+    quantization_dataset = QuantizationDataReader(dataset, 100)
     x = torch.Tensor(quantization_dataset.get_next()['input'])
 
     save_to_onnx(export_path, model, x)
@@ -55,7 +56,7 @@ if __name__ == "__main__":
     logging.info('Running model quantization ...')
 
     quantized_model_path = os.path.join(
-        export_config['export_path'], 'model_quantized.onnx')
+        export_config['export_path'], '{}_quantized.onnx'.format(export_config['export_name']))
     quantize_onnx_model(export_path, quantized_model_path,
                         calibration_dataset=quantization_dataset)
     logging.info('Exportation done ✅')

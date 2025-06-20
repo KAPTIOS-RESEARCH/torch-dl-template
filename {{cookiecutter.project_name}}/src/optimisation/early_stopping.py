@@ -1,4 +1,8 @@
-import torch, os, logging, wandb
+import torch
+import os
+import logging
+import wandb
+
 
 class EarlyStopping:
 
@@ -21,12 +25,6 @@ class EarlyStopping:
                 'last_epoch': epoch
             }
             torch.save(model_object, os.path.join(log_dir, 'best_model.pth'))
-            
-            ## Uncomment to enable saving the models in wandb
-            # if self.enable_wandb:
-            #     artifact = wandb.Artifact("saved_model", type="model")
-            #     artifact.add_file(os.path.join(log_dir, 'best_model.pth'))
-            #     wandb.log_artifact(artifact)
         else:
             self.counter += 1
             if self.verbose:

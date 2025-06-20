@@ -1,7 +1,10 @@
-import torch, os, logging
+import torch
+import os
+import logging
 from torch import nn
 from onnxruntime.quantization import quantize_static, CalibrationDataReader, QuantFormat, QuantType
-from onnxruntime.quantization import quant_pre_process
+from onnxruntime.quantization.shape_inference import quant_pre_process
+
 
 def get_layers_to_fuse(model: nn.Module, prefix: str = "") -> list:
     """Recursively retrieves a list of groupable layers for fusion.
@@ -25,7 +28,7 @@ def get_layers_to_fuse(model: nn.Module, prefix: str = "") -> list:
         # Recursively process submodules
         if len(list(module.children())) > 0:
             fused_layers.extend(get_layers_to_fuse(module, full_name))
-        
+
         # Check for fusable patterns
         if prev_layer:
             # Conv2d or Linear followed by an Activation
@@ -63,7 +66,8 @@ def fuse_layers(model: nn.Module):
         model,
         fused_layers
     )
-    
+
+
 def quantize_onnx_model(model_path: str, quantized_model_path: str, calibration_dataset: CalibrationDataReader):
     """Run uint8 quantization on an onnx model.
 
@@ -72,7 +76,8 @@ def quantize_onnx_model(model_path: str, quantized_model_path: str, calibration_
         quantized_model_path (str): Path to save the quantized .onnx model file
         calibration_dataset (CalibrationDataReader): The calibration dataset to retrieve the input data dict for ONNXinferenceSession
     """
-    quant_pre_process(model_path, model_path)
+    quant_pre_process(
+        model_path, model_path)
     quantize_static(
         model_path,
         quantized_model_path,
@@ -81,6 +86,8 @@ def quantize_onnx_model(model_path: str, quantized_model_path: str, calibration_
         activation_type=QuantType.QInt16,
         weight_type=QuantType.QInt8,
     )
-    logging.info(f"Original ONNX model size (MB): {os.path.getsize(model_path) / (1024 * 1024):.2f}")
-    logging.info(f"Quantized ONNX model size (MB): {os.path.getsize(quantized_model_path) / (1024 * 1024):.2f}")
+    logging.info(
+        f"Original ONNX model size (MB): {os.path.getsize(model_path) / (1024 * 1024):.2f}")
+    logging.info(
+        f"Quantized ONNX model size (MB): {os.path.getsize(quantized_model_path) / (1024 * 1024):.2f}")
     logging.info(f"Quantized model saved to {quantized_model_path}")

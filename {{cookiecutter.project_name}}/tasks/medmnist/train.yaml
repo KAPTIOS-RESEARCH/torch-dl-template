@@ -1,0 +1,51 @@
+name: MedMNIST
+seed: 1234
+track: &track False
+model:
+  class_name: ResNet18
+  module_name: src.models.resnet
+  parameters:
+    num_classes: &num_classes 11
+  
+dataloader:
+  class_name: MedMNISTDataloader
+  module_name: src.data.loaders.medmnist
+  parameters:
+    data_dir: ./data
+    dataset_name: OrganSMNIST
+    batch_size: 64
+    num_workers: 8
+    image_size: 64
+    debug: False
+
+
+evaluator:
+  class_name: Evaluator
+  module_name: src.core.evaluator
+  parameters:
+    metrics:
+      - accuracy:
+        class_name: Accuracy
+        module_name: torchmetrics
+        parameters:
+          task: multiclass
+          num_classes: *num_classes
+
+trainer:
+  class_name: MedMNISTrainer
+  module_name: tasks.medmnist.trainer
+  parameters:
+    num_epochs: 100
+    early_stopping_patience: null
+    lr_scheduler: 
+    lr: 0.0001
+    weight_decay: 0.0001
+    track: *track
+    loss:
+      class_name: CrossEntropyLoss
+      module_name: torch.nn
+      parameters:
+  
+experiment:
+  class_name: BaseExperiment
+  module_name: src.core.experiment
