@@ -77,7 +77,7 @@ def quantize_onnx_model(model_path: str, quantized_model_path: str, calibration_
         calibration_dataset (CalibrationDataReader): The calibration dataset to retrieve the input data dict for ONNXinferenceSession
     """
     quant_pre_process(
-        model_path, model_path)
+        model_path, model_path, skip_shape_inference=True, skip_symbolic_shape=True)
     quantize_static(
         model_path,
         quantized_model_path,
