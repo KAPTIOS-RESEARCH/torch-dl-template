@@ -2,7 +2,7 @@
 Exports a PyTorch model to onnx
 """
 import logging
-import torch
+import torch, onnx
 import os
 from argparse import ArgumentParser
 from src.utils.quantization import quantize_onnx_model

@@ -1,4 +1,4 @@
-name: torch-env
+name: torch-template
 channels:
   - conda-forge
   - defaults
@@ -35,3 +35,4 @@ dependencies:
     - onnxruntime==1.19.2
     - onnx2torch==1.5.15
     - onnxoptimizer==0.3.13
+    - medmnist==3.0.2

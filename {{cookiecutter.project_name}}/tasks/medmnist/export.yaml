@@ -1,6 +1,6 @@
 export_name: medmnist_export
 export_path: './exports'
-model_path: './logs/MedMNIST_18d8/best_model.pth'
+model_path: './logs/MedMNIST_234b/best_model.pth'
 
 dataset:
   module_name: src.data.sets.medmnist

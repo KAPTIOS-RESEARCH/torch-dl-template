@@ -15,7 +15,7 @@ dataloader:
     data_dir: ./data
     batch_size: 32
     num_workers: 4
-    debug: False
+    debug: True
 
 evaluator:
   class_name: Evaluator

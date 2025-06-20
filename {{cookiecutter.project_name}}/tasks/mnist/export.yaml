@@ -1,6 +1,6 @@
 export_name: mnist_export
 export_path: './exports'
-model_path: './logs/DefaultTask_ba21/best_model.pth'
+model_path: './logs/DefaultTask_27ef/best_model.pth'
 dataset:
   module_name: torchvision.datasets
   class_name: MNIST
