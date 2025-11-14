@@ -1,82 +1,125 @@
-# {{cookiecutter.project_name}}
+# {{cookiecutter.project\_name}}
 
-![PyTorch](https://img.shields.io/badge/PyTorch-%23EE4C2C.svg?style=flat&logo=pytorch&color=gray)  
+[](https://pytorch.org/)
+[](https://www.comet.com)
+[](https://codecarbon.io/)
+[](https://opensource.org/licenses/MIT)
 
 A simple template for building and training deep learning models using PyTorch. This project provides a flexible and easy-to-use set of tools for rapid model development, training pipelines, and evaluation.
 
-**Corresponding Author :** {{cookiecutter.author_name}} <br />
+**Corresponding Author:** {{cookiecutter.author\_name}}
 
-## Overview
+-----
 
-This repository contains a framework built on top of [PyTorch](https://pytorch.org/) and inspired by the deep learning framework from the Institute of Machine Learning in Biomedical Imaging : https://github.com/compai-lab/iml-dl. It abstracts away boilerplate code for training, evaluation, and inference tasks while still offering the flexibility of PyTorch for custom modifications. 
+## 📖 Overview
 
-It supports the following:
-- Model training pipelines (with data preprocessing)
-- Experiment tracking (integration with Weights & Biases)
-- Model evaluation 
-- Energy consumption tracking
+This repository contains a framework built on top of [PyTorch](https://www.google.com/search?q=httpss://pytorch.org/) that abstracts away boilerplate code for training, evaluation, and inference. It is inspired by the deep learning framework from the Institute of Machine Learning in Biomedical Imaging: [compai-lab/iml-dl](https://github.com/compai-lab/iml-dl).
 
-## Installation
+### ✨ Key Features
 
-First, the dependencies should be installed the provided conda environment depending on your OS : 
+  * **Config-Driven:** Define your entire experiment—from data loading to model parameters—in a single `.yaml` file.
+  * **Training Pipelines:** Robust training, validation, and testing loops right out of the box.
+  * **📈 Experiment Tracking:** Automatic logging of metrics, parameters, and artifacts with [Comet ML](https://www.comet.com).
+  * **🌍 Energy Tracking:** Monitor energy consumption and CO2 emissions during training using [CodeCarbon](https://github.com/mlco2/codecarbon).
+  * **📦 Model Export:** Easily export your trained PyTorch models to **ONNX** with built-in quantization support.
+
+-----
+
+## 🚀 Getting Started
+
+### 1\. Installation
+
+First, clone the repository and create the Conda environment from the provided file:
 
 ```bash
+git clone https://github.com/your-username/{{cookiecutter.project_name}}.git
+cd {{cookiecutter.project_name}}
+
 conda env create -f environment.yml
 conda activate torch-env
 ```
 
-## Features
+### 2\. Configure Tracking (Optional)
 
-### Running a training task
+This template uses **Comet** for experiment tracking. To enable it, create a `.env` file from the example and add your credentials:
 
-You can run an task by pointing to its configuration file like :
+```bash
+cp .env.example .env
+nano .env  # Add your COMET_API_KEY and COMET_WORKSPACE
+```
+
+### 3\. Run a Training Task
+
+You can start a training task by pointing the `main.py` script to a configuration file.
 
 ```bash
 python main.py --config_path ./tasks/mnist/train.yaml
 ```
 
-### Export a saved model
+-----
 
-The framework supports exporting a saved PyTorch model to ONNX.
-To do so, an export config yaml file should be given as flag to the ```export.py``` script.
+## 🛠️ Usage
+
+### 📦 Exporting a Model to ONNX
+
+The framework supports exporting a saved PyTorch model (`.pth`) to **ONNX**. This process is also config-driven.
+
+1.  **Create an export config** (e.g., `export.yaml`). This file specifies the paths and model architecture.
+2.  **Run the `export.py` script.**
+
+<!-- end list -->
 
 ```bash
 python export.py --export_config_path ./tasks/default/export.yaml
 ```
 
-This file should look like : 
+An example `export.yaml` file looks like this:
 
 ```yaml
+# Path to save the exported ONNX model
 export_path: './exports'
+
+# Path to the saved PyTorch model checkpoint
 model_path: './saved_models/best_model.pth'
+
+# Model definition (must match the saved model)
+model:
+  module_name: src.models.super_resolution
+  class_name: SRResUNet
+  parameters:
+    # ... (model-specific parameters)
+
+# --- Optional: Quantization ---
+# By default, the export script also saves a quantized ONNX model.
+# This requires a 'quantization_dataset' for calibration.
 quantization_dataset:
   module_name: src.data.sets.super_resolution
   class_name: FastMRISuperResolutionDataReader
   parameters:
-    data_folder: /path/to/dataset
-    num_samples: 100
-model:
-  class_name: SRResUNet
-  module_name: src.models.super_resolution
-  parameters:
+    data_folder: /path/to/calibration-dataset
+    num_samples: 100 # Number of samples to use for calibration
 ```
 
-By default, the export also saves a quantized version of the model. For this to work, a Calibration Dataset should be passed using the ```quantization_dataset``` key.
+> **Note:** If you do not want to create a quantized model, simply remove the `quantization_dataset` key from your export config.
 
-## Tracking
+-----
 
+## 📊 Tracking & Logging
 
-### Experiment tracking
+### 📈 Experiment Tracking with Comet ML
 
-This template uses [Comet](https://www.comet.com) as a logging system and tracker for experiment metrics.
-To enable this support you should have an account and set the api key and workspace in a .env file (see ```.env.example```).
+This template is fully integrated with [Comet ML](https://www.comet.com). When you provide a valid API key in your `.env` file, the framework will automatically:
 
-### Energy consumption tracking
+  * Log all hyperparameters from your `.yaml` config.
+  * Track training, validation, and test metrics (e.g., loss, accuracy) in real-time.
+  * Save your model checkpoints.
+  * Upload generated artifacts (like the `emissions.csv` from CodeCarbon).
 
-This template uses [CodeCarbon](https://github.com/mlco2/codecarbon) for tracking energy consumption and carbon emissions during the training tasks.
-We used the ```EmissionsTracker``` explicit object with a default configuration in the ```./src/core/experiment.py``` file : 
+### 🌍 Energy Consumption Tracking
 
-```bash
+This template uses [CodeCarbon](https://github.com/mlco2/codecarbon) to track energy consumption and estimate carbon emissions. This is implemented via the `EmissionsTracker` in `./src/core/experiment.py`:
+
+```python
 self.codeCarbonTracker = EmissionsTracker(
     experiment_id=self.id,
     experiment_name=self.name,
@@ -88,11 +131,12 @@ self.codeCarbonTracker = EmissionsTracker(
 )
 ```
 
-In this configuration, metrics are not sent to the CodeCarbon API but saved in a .csv file.
-This configuration can be overwritten by a ```.codecarbon.config``` file, you can refer to there documentation to set this file.
-The tracking process also automatically saves summary metrics in the Comet ML experiment. The ```emissions.csv``` file can be found in the ```Assets&Artefacts``` Comet resource.
+**How it works:**
 
-For each experiment, two tasks are also tracked and saved in the ```Others``` Comet resource :
+  * **Local CSV:** By default, metrics are saved locally to an `emissions.csv` file within your experiment's log directory. This file is also automatically uploaded to your Comet experiment's **Assets & Artifacts** tab.
+  * **Comet Integration:** The tracker also saves summary metrics (like `total_energy_kwh` and `total_co2_emissions`) in the **Others** tab of your Comet experiment.
+  * **Task-Specific Tracking:** It automatically tracks energy for two distinct tasks:
+      * `data`: Energy consumed during data loading.
+      * `training`: Energy consumed during the main training, validation, and testing loops.
 
-- data (to track the energy consumption when loading the datasets)
-- training (to track the energy consumtion when training/validating/testing a model)
+> You can customize this behavior by creating a `.codecarbon.config` file in the project's root directory. See the [CodeCarbon documentation](https://www.google.com/search?q=https://mlco2.github.io/codecarbon/configuration.html) for details.
