@@ -10,9 +10,10 @@ from codecarbon import EmissionsTracker
 
 class BaseExperiment:
 
-    def __init__(self, project_name: str, name: str, comet_exp: CometExperiment, config: dict):
+    def __init__(self, project_name: str, id: str, name: str, comet_exp: CometExperiment, config: dict):
         
         self.project_name = project_name
+        self.id = id
         self.name = name
         self.comet_exp = comet_exp
      
@@ -21,7 +22,13 @@ class BaseExperiment:
         os.makedirs(self.log_dir, exist_ok=True)
 
         self.codeCarbonTracker = EmissionsTracker(
-            output_dir=self.log_dir
+            experiment_id=self.id,
+            experiment_name=self.name,
+            output_dir=self.log_dir,
+            output_file='emissions.csv',
+            log_level='error',
+            measure_power_secs=10,
+            save_to_file=True,
         )
         
         set_seed(config['seed'])
@@ -72,13 +79,19 @@ class BaseExperiment:
         params = evaluator_config['parameters']
         return instanciate_module(md_name, cls_name, params)
 
+    
     def run(self):
-        self.codeCarbonTracker.start_task('load datasets')
+        self.codeCarbonTracker.start_task('data')
         train_dl = self.dataloader.train()
         val_dl = self.dataloader.val()
         test_dl = self.dataloader.test()
         data_emissions = self.codeCarbonTracker.stop_task()
-        self.codeCarbonTracker.start_task('training model')
+        self.codeCarbonTracker.start_task('training')
         self.trainer.fit(train_dl, val_dl, test_dl, self.log_dir, self.evaluator)
         training_emissions = self.codeCarbonTracker.stop_task()
+        self.codeCarbonTracker.stop()
+        self.comet_exp.log_other("training_energy", training_emissions.energy_consumed)
+        self.comet_exp.log_other("training_emissions", training_emissions.emissions)
+        self.comet_exp.log_other("data_energy", data_emissions.energy_consumed)
+        self.comet_exp.log_other("data_emissions", data_emissions.emissions)
         return data_emissions, training_emissions

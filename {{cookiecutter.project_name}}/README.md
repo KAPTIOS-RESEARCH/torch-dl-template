@@ -14,6 +14,7 @@ It supports the following:
 - Model training pipelines (with data preprocessing)
 - Experiment tracking (integration with Weights & Biases)
 - Model evaluation 
+- Energy consumption tracking
 
 ## Installation
 
@@ -24,28 +25,17 @@ conda env create -f environment.yml
 conda activate torch-env
 ```
 
-## Experiment tracking
+## Features
 
-By default this template uses WandB as a logging system and tracker for experiment metrics.
-To enable this support you should have a free account at [wandb.ai](https://wandb.ai) and login with the CLI using :
-
-```bash
-wandb login
-```
-
-The CLI will ask for the API key that can be found in your wandb account page.
-
-
-## Running a training task
+### Running a training task
 
 You can run an task by pointing to its configuration file like :
 
 ```bash
-python main.py --config_path ./tasks/default/train.yaml
+python main.py --config_path ./tasks/mnist/train.yaml
 ```
 
-
-## Export a saved model
+### Export a saved model
 
 The framework supports exporting a saved PyTorch model to ONNX.
 To do so, an export config yaml file should be given as flag to the ```export.py``` script.
@@ -73,21 +63,36 @@ model:
 
 By default, the export also saves a quantized version of the model. For this to work, a Calibration Dataset should be passed using the ```quantization_dataset``` key.
 
-### Create a custom task
+## Tracking
 
-You can define your own tasks by simply following the structure of the default task folder.
-Alternatively, if the synforge CLI is installed you can use it to create the necessary files for you :
+
+### Experiment tracking
+
+This template uses [Comet](https://www.comet.com) as a logging system and tracker for experiment metrics.
+To enable this support you should have an account and set the api key and workspace in a .env file (see ```.env.example```).
+
+### Energy consumption tracking
+
+This template uses [CodeCarbon](https://github.com/mlco2/codecarbon) for tracking energy consumption and carbon emissions during the training tasks.
+We used the ```EmissionsTracker``` explicit object with a default configuration in the ```./src/core/experiment.py``` file : 
 
 ```bash
-synforge generate task
+self.codeCarbonTracker = EmissionsTracker(
+    experiment_id=self.id,
+    experiment_name=self.name,
+    output_dir=self.log_dir,
+    output_file='emissions.csv',
+    log_level='error',
+    measure_power_secs=10,
+    save_to_file=True,
+)
 ```
 
+In this configuration, metrics are not sent to the CodeCarbon API but saved in a .csv file.
+This configuration can be overwritten by a ```.codecarbon.config``` file, you can refer to there documentation to set this file.
+The tracking process also automatically saves summary metrics in the Comet ML experiment. The ```emissions.csv``` file can be found in the ```Assets&Artefacts``` Comet resource.
 
-## Carbon emission tracking
+For each experiment, two tasks are also tracked and saved in the ```Others``` Comet resource :
 
-This template uses CodeCarbon for energy consumption tracking over the training task.
-
-```bash
-codecarbon login
-codecarbon config
-```
+- data (to track the energy consumption when loading the datasets)
+- training (to track the energy consumtion when training/validating/testing a model)

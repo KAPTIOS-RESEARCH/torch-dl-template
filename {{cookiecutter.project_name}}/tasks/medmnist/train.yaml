@@ -1,6 +1,5 @@
 name: MedMNIST
 seed: 1234
-energy_sampling_interval: 60
 
 model:
   class_name: ResNet18

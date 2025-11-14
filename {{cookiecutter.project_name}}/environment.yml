@@ -41,3 +41,4 @@ dependencies:
     - medmnist==3.0.2
     - codecarbon==3.0.8
     - comet-ml==3.54.0
+    - python-dotenv==1.2.1

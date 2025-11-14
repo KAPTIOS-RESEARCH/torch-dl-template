@@ -1,10 +1,5 @@
 name: MNIST
 seed: 1234
-energy_sampling_interval: 60
-
-comet:
-  api_key: FDvN223BjuUc9ZkMaAj4zYf6l
-  workspace: kprd
 
 model:
   class_name: DefaultCNN
