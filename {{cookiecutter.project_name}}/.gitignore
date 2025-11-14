@@ -1,0 +1,11 @@
+wandb
+.DS_Store
+.idea
+__pycache__
+/data/
+/logs
+/exports
+/comet
+/codecarbon
+.codecarbon.config
+credentials.json
