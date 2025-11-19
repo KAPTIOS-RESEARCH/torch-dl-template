@@ -139,4 +139,4 @@ self.codeCarbonTracker = EmissionsTracker(
       * `data`: Energy consumed during data loading.
       * `training`: Energy consumed during the main training, validation, and testing loops.
 
-> You can customize this behavior by creating a `.codecarbon.config` file in the project's root directory. See the [CodeCarbon documentation](https://www.google.com/search?q=https://mlco2.github.io/codecarbon/configuration.html) for details.
+> You can customize this behavior by creating a `.codecarbon.config` file in the project's root directory. See the [CodeCarbon documentation](https://mlco2.github.io/codecarbon/usage.html#configuration) for details.
