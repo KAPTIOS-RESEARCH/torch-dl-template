@@ -1,4 +1,4 @@
-# {{cookiecutter.project\_name}}
+# {{cookiecutter.project_name}}
 
 [](https://pytorch.org/)
 [](https://www.comet.com)
@@ -7,7 +7,7 @@
 
 A simple template for building and training deep learning models using PyTorch. This project provides a flexible and easy-to-use set of tools for rapid model development, training pipelines, and evaluation.
 
-**Corresponding Author:** {{cookiecutter.author\_name}}
+**Corresponding Author:** {{cookiecutter.author_name}}
 
 -----
 
