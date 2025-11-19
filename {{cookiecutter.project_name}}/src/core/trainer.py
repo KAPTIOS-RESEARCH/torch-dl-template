@@ -62,12 +62,12 @@ class BaseTrainer:
     # ----------------------------
     # Core epoch runner
     # ----------------------------
-    def _run_epoch(self, loader, epoch=None, num_epochs=None, evaluator=None, is_train=True):
+    def _run_epoch(self, loader, epoch=None, num_epochs=None, evaluator=None, phase: str = 'training'):
+        is_train = phase == 'training'
         self.model.train(mode=is_train)
         total_loss = 0.0
         current_lr = self.optimizer.param_groups[0]['lr']
-        phase_name = "Train" if is_train else "Validation"
-        desc = f"Epoch [{epoch + 1}/{num_epochs}] - {phase_name} - LR {current_lr:.6f}" if epoch is not None else f"Running {phase_name} phase"
+        desc = f"Epoch [{epoch + 1}/{num_epochs}] - {phase} - LR {current_lr:.6f}" if epoch is not None else f"Running {phase} phase"
 
         metric_sums = {k: 0.0 for k in evaluator.metrics}
 
@@ -103,28 +103,28 @@ class BaseTrainer:
     # ----------------------------
     # Centralized logging helper
     # ----------------------------
-    def _log_metrics(self, epoch, loss=None, metrics=None, phase=None):
-            metrics_to_log = {"loss": loss, **metrics}
-            self.comet_exp.log_metrics(metrics_to_log, step=epoch, epoch=epoch, include_context=True)
+    def _log_metrics(self, epoch, loss=None, metrics=None):
+        metrics_to_log = {"loss": loss, **metrics}
+        self.comet_exp.log_metrics(metrics_to_log, step=epoch, epoch=epoch, include_context=True)
 
     # ----------------------------
     # Phase wrappers
     # ----------------------------
     def train(self, train_loader, epoch=None, num_epochs=None, evaluator=None):
         with self.comet_exp.train():
-            loss, metrics = self._run_epoch(train_loader, epoch, num_epochs, evaluator, is_train=True)
+            loss, metrics = self._run_epoch(train_loader, epoch, num_epochs, evaluator, phase='training')
             self._log_metrics(epoch, loss, metrics)
         return loss, metrics
 
     def validation(self, val_loader, epoch=None, num_epochs=None, evaluator=None):
         with self.comet_exp.validate():
-            loss, metrics = self._run_epoch(val_loader, epoch, num_epochs, evaluator, is_train=False)
+            loss, metrics = self._run_epoch(val_loader, epoch, num_epochs, evaluator, phase='validation')
             self._log_metrics(epoch, loss, metrics)
         return loss, metrics
 
     def test(self, test_loader, epoch=None, num_epochs=None, evaluator=None):
         with self.comet_exp.test():
-            _, metrics = self._run_epoch(test_loader, epoch, num_epochs, evaluator, is_train=False)
+            _, metrics = self._run_epoch(test_loader, epoch, num_epochs, evaluator, phase='test')
             m = {}
             for k, v in metrics.items():
                 m[f"test_{k}"] = v 
