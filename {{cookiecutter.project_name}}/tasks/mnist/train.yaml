@@ -14,6 +14,24 @@ dataloader:
     batch_size: 8
     num_workers: 8
     debug: True
+
+evaluator:
+  class_name: Evaluator
+  module_name: src.core.evaluator
+  parameters:
+    metrics:
+      - accuracy:
+        class_name: Accuracy
+        module_name: torchmetrics
+        parameters:
+          task: multiclass
+          num_classes: 10
+      - accuracy:
+        class_name: AUROC
+        module_name: torchmetrics
+        parameters:
+          task: multiclass
+          num_classes: 10
 trainer:
   class_name: BaseTrainer
   module_name: src.core.trainer
