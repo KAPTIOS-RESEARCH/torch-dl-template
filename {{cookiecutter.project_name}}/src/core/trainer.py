@@ -67,9 +67,15 @@ class BaseTrainer:
         self.model.train(mode=is_train)
         total_loss = 0.0
         current_lr = self.optimizer.param_groups[0]['lr']
-        desc = f"Epoch [{epoch + 1}/{num_epochs}] - {phase} - LR {current_lr:.6f}" if epoch is not None else f"Running {phase} phase"
 
-        metric_sums = {k: 0.0 for k in evaluator.metrics}
+        desc = (
+            f"Epoch [{epoch + 1}/{num_epochs}] - {phase} - LR {current_lr:.6f}"
+            if epoch is not None
+            else f"Running {phase} phase"
+        )
+
+        has_metrics = evaluator is not None
+        metric_sums = {k: 0.0 for k in evaluator.metrics} if has_metrics else {}
 
         with tqdm(loader, desc=desc, ncols=150) as pbar:
             for i, (data, targets) in enumerate(loader, start=1):
@@ -82,23 +88,33 @@ class BaseTrainer:
                     loss.backward()
                     self.optimizer.step()
 
-                batch_metrics = evaluator.compute_metrics(outputs, targets)
-                for k, v in batch_metrics.items():
-                    metric_sums[k] += v.item() if isinstance(v, torch.Tensor) else v
-
                 total_loss += loss.item()
-                avg_metrics = {k: metric_sums[k]/i for k in metric_sums}
 
-                postfix = {'Loss': f'{total_loss/i:.6f}'}
-                for k, avg_val in avg_metrics.items():
-                    postfix[get_acronym(k)] = f"{avg_val:.4f}"
+                if has_metrics:
+                    with torch.no_grad():
+                        batch_metrics = evaluator.compute_metrics(outputs, targets)
+                        for k, v in batch_metrics.items():
+                            metric_sums[k] += v.item() if isinstance(v, torch.Tensor) else v
+
+                postfix = {'Loss': f'{total_loss / i:.6f}'}
+
+                if has_metrics:
+                    avg_metrics = {k: metric_sums[k] / i for k in metric_sums}
+                    for k, avg_val in avg_metrics.items():
+                        postfix[get_acronym(k)] = f"{avg_val:.4f}"
+
                 pbar.set_postfix(postfix)
                 pbar.update(1)
 
-
         avg_loss = total_loss / len(loader)
-        avg_metrics = {k: v / len(loader) for k, v in metric_sums.items()}
+        avg_metrics = (
+            {k: v / len(loader) for k, v in metric_sums.items()}
+            if has_metrics
+            else {}
+        )
+
         return avg_loss, avg_metrics
+
 
     # ----------------------------
     # Centralized logging helper
