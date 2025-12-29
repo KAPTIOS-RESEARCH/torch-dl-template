@@ -90,8 +90,8 @@ class BaseExperiment:
         self.trainer.fit(train_dl, val_dl, test_dl, self.log_dir, self.evaluator)
         training_emissions = self.codeCarbonTracker.stop_task()
         self.codeCarbonTracker.stop()
-        self.comet_exp.log_other("training_energy", training_emissions.energy_consumed)
-        self.comet_exp.log_other("training_emissions", training_emissions.emissions)
-        self.comet_exp.log_other("data_energy", data_emissions.energy_consumed)
-        self.comet_exp.log_other("data_emissions", data_emissions.emissions)
+        self.comet_exp.log_metric("training_energy", training_emissions.energy_consumed)
+        self.comet_exp.log_metric("training_emissions", training_emissions.emissions)
+        self.comet_exp.log_metric("data_energy", data_emissions.energy_consumed)
+        self.comet_exp.log_metric("data_emissions", data_emissions.emissions)
         return data_emissions, training_emissions
